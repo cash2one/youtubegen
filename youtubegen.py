@@ -1,10 +1,9 @@
 #!/usr/bin/python
 """
 Whoa man, like, make youtube music videos, one album at a time, on linux!!!!
-
-Up the punx.
-
 For usage, run the script with no arguments.
+Up the punx. Requirements:
+$ apt-get install sox libsox-fmt-all dvd-slideshow python-pymad
 """
 
 __author__ = 'Daniel da Silva <meltingwax@gmail.com>'
@@ -34,7 +33,7 @@ if not commands.getoutput('which dvd-slideshow'):
 
 def main():
     if len(sys.argv) == 1:
-        print 'Usage: %s <image_file> song1 [song2 [song3] ...]' % sys.arv[0]
+        print 'Usage: %s <image_file> song1 [song2 [song3] ...]' % sys.argv[0]
         return
 
     image = os.path.abspath(sys.argv[1])
