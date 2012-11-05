@@ -105,7 +105,8 @@ def main():
         sorted_songs.append(new_song)
 
     sorted_songs = sorted(sorted_songs, key=lambda f: ID3.ID3(f).get('TRACKNUMBER', 0))
-    
+    sorted_songs.reverse()
+
     print
 
     # Generate videos for each song and upload the videos
@@ -159,7 +160,7 @@ def main():
         # Send Newline ---------------------------
         print
 
-    print 'Temporary directory is', tmp_dir
+    print 'Temporary directory was', tmp_dir
     os.chdir(orig_dir)
 
 if __name__ == '__main__':
