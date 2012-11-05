@@ -57,6 +57,14 @@ def main():
         print 'Image file does not exist'
         return
 
+    # Login to Youtube.
+    youtube_service = gdata.youtube.service.YouTubeService()
+    youtube_service.email = raw_input('Email: ')
+    youtube_service.password = getpass.getpass('Password: ')
+    youtube_service.source = 'youtubegen'
+    youtube_service.developer_key = developer_key
+    youtube_service.ProgrammaticLogin()    
+
     # Ask user for description
     description = ''
 
@@ -87,24 +95,20 @@ def main():
             new_song = os.path.join(tmp_dir, os.path.basename(song))
             shutil.copy(song, new_song)
         else:
-            print '.',
+            print 'Converting', song, '...',
             sys.stdout.flush()
             old_song = song
             new_song = os.path.join(tmp_dir, os.path.splitext(os.path.basename(song))[0] + '.mp3')
             commands.getoutput('sox "%s" "%s"' % (old_song, new_song))
+            print
 
         sorted_songs.append(new_song)
 
     sorted_songs = sorted(sorted_songs, key=lambda f: ID3.ID3(f).get('TRACKNUMBER', 0))
+    
+    print
 
     # Generate videos for each song and upload the videos
-    youtube_service = gdata.youtube.service.YouTubeService()
-    youtube_service.email = raw_input('Email: ')
-    youtube_service.password = getpass.getpass('Password: ')
-    youtube_service.source = 'youtubegen'
-    youtube_service.developer_key = developer_key
-    youtube_service.ProgrammaticLogin()    
-
     for num, song in enumerate(sorted_songs):
         print '[%d/%d]' % (num + 1, len(songs)),
         sys.stdout.flush()
