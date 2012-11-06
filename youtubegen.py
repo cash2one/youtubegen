@@ -53,8 +53,8 @@ def main():
     image = os.path.abspath(sys.argv[2])
     songs = map(os.path.abspath, sys.argv[3:])
 
-    if not os.path.exists(image):
-        print 'Image file does not exist'
+    if not os.path.exists(image) or not image.endswith(('.jpg', '.png', '.gif')):
+        print 'Image file does not exist, or is invalid'
         return
 
     # Login to Youtube.
@@ -111,7 +111,7 @@ def main():
 
     # Generate videos for each song and upload the videos
     for num, song in enumerate(sorted_songs):
-        print '[%d/%d]' % (num + 1, len(songs)),
+        print '[%d/%d]' % (num + 1, len(sorted_songs)),
         sys.stdout.flush()
 
         # Generate Video ------------------------
@@ -127,9 +127,9 @@ def main():
         fh.write('%s:%d\n' % (image, song_length))
         fh.close()
 
-        output = commands.getoutput('dvd-slideshow %s' % recipe)
+        output = commands.getoutput('dvd-slideshow -flv %s' % recipe)
 
-        if not os.path.exists('%d.vob' % (num + 1)):
+        if not os.path.exists('%d.flv' % (num + 1)):
             print '(failed)'
             print output
             continue
@@ -156,7 +156,7 @@ def main():
         
         video_entry = gdata.youtube.YouTubeVideoEntry(media=media_group)
         
-        youtube_service.InsertVideoEntry(video_entry, '%d.vob' % (num + 1))
+        youtube_service.InsertVideoEntry(video_entry, '%d.flv' % (num + 1))
 
         # Send Newline ---------------------------
         print
