@@ -93,7 +93,7 @@ def main():
         if song.endswith('.mp3'):
             old_song = song
             new_song = os.path.join(tmp_dir, os.path.basename(song))
-            shutil.copy(song, new_song)
+            shutil.copy(old_song, new_song)
         else:
             print 'Converting', song, '...',
             sys.stdout.flush()
@@ -118,19 +118,20 @@ def main():
         print 'Generating...',
         sys.stdout.flush()
 
-        mad_file = mad.MadFile(new_song)
+        mad_file = mad.MadFile(song)
         song_length = mad_file.total_time() / 1000
  
         recipe = os.path.join(tmp_dir, '%d.txt' % (num + 1))
         fh = open(recipe, 'w')
-        fh.write('%s:1\n' % os.path.basename(new_song))
+        fh.write('%s:1\n' % os.path.basename(song))
         fh.write('%s:%d\n' % (image, song_length))
         fh.close()
 
-        commands.getoutput('dvd-slideshow %s' % recipe)
+        output = commands.getoutput('dvd-slideshow %s' % recipe)
 
         if not os.path.exists('%d.vob' % (num + 1)):
             print '(failed)'
+            print output
             continue
         
         # Upload To Youtube ----------------------
