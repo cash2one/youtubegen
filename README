@@ -48,11 +48,12 @@ Make it a shell variable as follows:
 Suppose you have an album like this:
 
    $ ls
-   01 - army song.mp3       06 - voice of youth.mp3  11 - banner of hope.mp3      cover.jpg
+   01 - army song.mp3       06 - voice of youth.mp3  11 - banner of hope.mp3      
    02 - juvenile.mp3        07 - burn 'em down.mp3   12 - law of the jungle.mp3   
    03 - so slow.mp3         08 - urban rebel.mp3     13 - the prisoner.mp3
    04 - vicious circle.mp3  09 - jailhouse rock.mp3  14 - christianne.mp3
    05 - attack.mp3          10 - sonic omen.mp3      15 - black leather girl.mp3
+   cover.jpg
 
 To upload the whole album, run the program like this:
 
