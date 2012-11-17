@@ -14,6 +14,10 @@ _|    _|  _|        _|    _|      _|    _|  _|    _|
                                   _|              _|  
                                   _|          _|_|    
 
+Author:  Daniel da Silva <daniel@meltingwax.net>
+License: GPL v2.0 <http://www.gnu.org/licenses/gpl-2.0.txt>
+
+
 ========== Description ===============
 
 YoutubeGen is a script for uploading an album to invidiual youtube videos. It does not matter what
@@ -60,3 +64,4 @@ To upload the whole album, run the program like this:
    $ youtubegen.py $Y_DEV_KEY cover.jpg *.mp3
 
 If will prompt you for your login information, and the description to use for all the videos.
+

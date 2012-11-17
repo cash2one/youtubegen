@@ -6,7 +6,7 @@ Up the punx. Requirements:
 $ apt-get install sox libsox-fmt-all dvd-slideshow python-pymad python-id3 python-gdata
 """
 
-__author__ = 'Daniel da Silva <meltingwax@gmail.com>'
+__author__ = 'Daniel da Silva <daniel@meltingwax.net>'
 
 
 import commands
@@ -46,14 +46,21 @@ if not commands.getoutput('which dvd-slideshow'):
 
 def main():
     if len(sys.argv) == 1:
-        print 'Usage: %s <youtube_developer_key> <image_file> song1 [song2 [song3] ...]' % sys.argv[0]
+        print 'Usage: %s [-hq] <youtube_developer_key> <image_file> song1 [song2 [song3] ...]' % sys.argv[0]
         return
+    
+    args = sys.argv[1:]
+    
+    high_quality = '-hq' in args
+    
+    if high_quality:
+        args.remove('-hq')        
 
-    developer_key = sys.argv[1]
-    image = os.path.abspath(sys.argv[2])
-    songs = map(os.path.abspath, sys.argv[3:])
+    developer_key = args[0]
+    image = os.path.abspath(args[1])
+    songs = map(os.path.abspath, args[2:])
 
-    if not os.path.exists(image) or not image.endswith(('.jpg', '.png', '.gif')):
+    if not os.path.exists(image) or not image.lower().endswith(('.jpg', '.png', '.gif')):
         print 'Image file does not exist, or is invalid'
         return
 
@@ -127,9 +134,16 @@ def main():
         fh.write('%s:%d\n' % (image, song_length))
         fh.close()
 
-        output = commands.getoutput('dvd-slideshow -flv %s' % recipe)
+        if high_quality:            
+            command = 'dvd-slideshow %s' % recipe
+            video_fname = '%d.vob' % (num + 1)
+        else:
+            command = 'dvd-slideshow -flv %s' % recipe
+            video_fname = '%d.flv' % (num + 1)
+            
+        output = commands.getoutput(command)
 
-        if not os.path.exists('%d.flv' % (num + 1)):
+        if not os.path.exists(video_fname):
             print '(failed)'
             print output
             continue
@@ -156,7 +170,7 @@ def main():
         
         video_entry = gdata.youtube.YouTubeVideoEntry(media=media_group)
         
-        youtube_service.InsertVideoEntry(video_entry, '%d.flv' % (num + 1))
+        youtube_service.InsertVideoEntry(video_entry, video_fname)
 
         # Send Newline ---------------------------
         print
