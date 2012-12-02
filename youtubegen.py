@@ -50,12 +50,21 @@ def main():
         return
     
     args = sys.argv[1:]
-    
-    high_quality = '-hq' in args
-    
+
+    # Remove some flags out of args manually
+    high_quality = '-hq' in args    
     if high_quality:
         args.remove('-hq')        
 
+    if '--description' in args:
+        idx = args.index('--description')
+        description = args[idx + 1]
+        args.pop(idx)
+        args.pop(idx) # will be formerly idx + 1
+    else:
+        description = None
+
+    # Pull variables out of args
     developer_key = args[0]
     image = os.path.abspath(args[1])
     songs = map(os.path.abspath, args[2:])
@@ -73,15 +82,15 @@ def main():
     youtube_service.ProgrammaticLogin()    
 
     # Ask user for description
-    description = ''
+    if description is None:
+        print 'Enter description (two blank lines to break):'
 
-    print 'Enter description (two blank lines to break):'
-    
-    while True:
-        description += raw_input() + '\n'
+        description = ''    
 
-        if description.endswith('\n\n\n'):
-            break
+        while True:
+            description += raw_input() + '\n'
+            if description.endswith('\n\n\n'):
+                break
     
     # Generate Temporary Directory
     tmp_dir = os.path.join(tempfile.gettempdir(), 'youtubegen-%d' % int(time.time()))
@@ -135,7 +144,11 @@ def main():
         fh.close()
 
         if high_quality:            
-            command = 'dvd-slideshow %s' % recipe
+            # The -mp2 causes the audio to be encoded into MP3, as opposed to
+            # the default AC3. We do this because a bug appeared in Ubuntu
+            # where ffmpeg would pass invalid pointers to free() from the AC3
+            # functions, crash everything, and prevent the video from being made.
+            command = 'dvd-slideshow -mp2 %s' % recipe 
             video_fname = '%d.vob' % (num + 1)
         else:
             command = 'dvd-slideshow -flv %s' % recipe
