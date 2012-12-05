@@ -59,7 +59,7 @@ def sort_key_fn(song_path):
             return -1
     
 def main():
-    parser = argparse.ArgumentParser(description=sys.modules[__name__].__doc__)    
+    parser = argparse.ArgumentParser(description=sys.modules[__name__].__doc__)
     parser.add_argument('developer_key', metavar='YoutubeDeveloperKey', help='YouTube developer key')
     parser.add_argument('cover_file', metavar='CoverFile', type=file, help='Cover image file')
     parser.add_argument('song_files', metavar='SongFile', type=file, nargs='+', help='Song Files')
