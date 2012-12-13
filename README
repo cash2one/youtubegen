@@ -36,7 +36,7 @@ First, there are a number of package dependencies. Trying to run the script will
 
 The videos produced are automatically uploaded to your youtube account. In order to do this, you must first get a YouTube developer key (it's free). To do this, go to:
 
-   http://code.google.com/apis/youtube/dashboard/gwt/index.htmlshel
+   http://code.google.com/apis/youtube/dashboard/gwt/index.html
 
 Make it a shell variable as follows:
 
