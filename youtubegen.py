@@ -47,6 +47,7 @@ if not commands.getoutput('which dvd-slideshow'):
     print 'Requires dvd-slideshow <http://dvd-slideshow.sourceforge.net>'
     sys.exit(1)
 
+
 def sort_key_fn(song_path):
     tags = ID3.ID3(song_path)
     
@@ -66,6 +67,7 @@ def main():
     parser.add_argument('--desc', dest='desc', metavar='Description', help='Youtube description for the videos')
     parser.add_argument('--email', dest='email', metavar='Email', help='YouTube email login')
     parser.add_argument('--pass', dest='pass_', metavar='Password', help='YouTube password')
+    parser.add_argument('--keywords', dest='keywords', metavar='Keywords', help='Additional search keywords (ex: "punk, hardcore")')
     parser.add_argument('-X', '--high-quality', dest='high_quality', action='store_true',
                         help='Render videos in higher quality (slower & longer upload, but better image quality)')
 
@@ -182,20 +184,23 @@ def main():
             title = '%s - %s' % (id3['ARTIST'], id3['TITLE'])
         else:
             title = os.path.basename(song_path).replace('.mp3', '')
-        
-        media_group = gdata.media.Group(
-            title=gdata.media.Title(text=title),
-            description=gdata.media.Description(description_type='plain',
-                                                text=description),
-            category=[gdata.media.Category(text='Music',
-                                           scheme='http://gdata.youtube.com/schemas/2007/categories.cat',
-                                           label='Music')],
-            player=None)
-        
-        video_entry = gdata.youtube.YouTubeVideoEntry(media=media_group)
-        
-        youtube_service.InsertVideoEntry(video_entry, video_fname)
 
+        # Build the gdata.media.Group object
+        kwargs = {}
+        if args.keywords is not None:
+            kwargs['keywords'] = gdata.media.Keywords(text=args.keywords)
+        kwargs['player'] = None
+        kwargs['title'] = gdata.media.Title(text=title)
+        kwargs['description'] = gdata.media.Description(description_type='plain', text=description)
+        kwargs['category'] = [gdata.media.Category(text='Music',
+                                                   scheme='http://gdata.youtube.com/schemas/2007/categories.cat',
+                                                   label='Music')]
+        media_group = gdata.media.Group(**kwargs)
+
+        # Upload the video
+        video_entry = gdata.youtube.YouTubeVideoEntry(media=media_group)        
+        youtube_service.InsertVideoEntry(video_entry, video_fname)
+        
         # Send Newline ------------------------------------------------
         print
 
