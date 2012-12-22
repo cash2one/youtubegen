@@ -132,7 +132,7 @@ def main():
 
         sorted_songs.append(new_song_path)
 
-    sorted_songs.sort(key=sort_key_fn, reverse=True)    
+    sorted_songs.sort(key=sort_key_fn)
     print 
 
     # Generate a playlist for this album
@@ -156,6 +156,7 @@ def main():
             playlist_entry = None
     else:
         playlist_entry = None
+        sorted_songs.reverse()
     
     sys.stdout.flush()
     
@@ -225,12 +226,15 @@ def main():
 
         # Upload the video
         video_entry = gdata.youtube.YouTubeVideoEntry(media=media_group)        
-        youtube_video_entry = youtube_service.InsertVideoEntry(video_entry, video_fname)
-
-        if playlist_entry is not None:
-            playlist_video_entry = youtube_service.AddPlaylistVideoEntryToPlaylist(
-                playlist_entry.feed_link[0].href, youtube_video_entry.id)
+        video_entry = youtube_service.InsertVideoEntry(video_entry, video_fname)
         
+        if playlist_entry is not None:
+            playlist_uri = playlist_entry.feed_link[0].href
+            video_id = video_entry.id.text.split('/')[-1]
+            
+            playlist_video_entry = youtube_service.AddPlaylistVideoEntryToPlaylist(
+                playlist_uri, video_id)
+            
             if not isinstance(playlist_video_entry, gdata.youtube.YouTubePlaylistVideoEntry):
                 print '[Failed to add to playlist]', 
         
