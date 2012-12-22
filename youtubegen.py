@@ -68,6 +68,8 @@ def main():
     parser.add_argument('--email', dest='email', metavar='Email', help='YouTube email login')
     parser.add_argument('--pass', dest='pass_', metavar='Password', help='YouTube password')
     parser.add_argument('--keywords', dest='keywords', metavar='Keywords', help='Additional search keywords (ex: "punk, hardcore")')
+    parser.add_argument('-P', '--playlist', dest='playlist', action='store_true',
+                        help='Group all videos into a playlist')
     parser.add_argument('-X', '--high-quality', dest='high_quality', action='store_true',
                         help='Render videos in higher quality (slower & longer upload, but better image quality)')
 
@@ -133,6 +135,30 @@ def main():
     sorted_songs.sort(key=sort_key_fn, reverse=True)    
     print 
 
+    # Generate a playlist for this album
+    if args.playlist:
+        playlist_name = None
+
+        for song_path in sorted_songs:
+            tags = ID3.ID3(song_path)
+            if tags.get('ARTIST') and tags.get('ALBUM'):
+                playlist_name = '%s - %s' % (tags['ARTIST'], tags['ALBUM'])
+                break
+        
+        if playlist_name is None:
+            playlist_name = raw_input('Playlist Title: ')
+        
+        playlist_entry = youtube_service.AddPlaylist(playlist_name, '')
+        if isinstance(playlist_entry, gdata.youtube.YouTubePlaylistEntry):
+            print 'Created Playlist "%s"' %  playlist_name
+        else:
+            print 'Failed to create Playlist "%s"' % playlist_name
+            playlist_entry = None
+    else:
+        playlist_entry = None
+    
+    sys.stdout.flush()
+    
     # Generate videos for each song and upload the videos
     cover_file_path = os.path.abspath(args.cover_file.name)
 
@@ -199,7 +225,14 @@ def main():
 
         # Upload the video
         video_entry = gdata.youtube.YouTubeVideoEntry(media=media_group)        
-        youtube_service.InsertVideoEntry(video_entry, video_fname)
+        youtube_video_entry = youtube_service.InsertVideoEntry(video_entry, video_fname)
+
+        if playlist_entry is not None:
+            playlist_video_entry = youtube_service.AddPlaylistVideoEntryToPlaylist(
+                playlist_entry.feed_link[0].href, youtube_video_entry.id)
+        
+            if not isinstance(playlist_video_entry, gdata.youtube.YouTubePlaylistVideoEntry):
+                print '[Failed to add to playlist]', 
         
         # Send Newline ------------------------------------------------
         print
