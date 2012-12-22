@@ -148,7 +148,7 @@ def main():
         if playlist_name is None:
             playlist_name = raw_input('Playlist Title: ')
         
-        playlist_entry = youtube_service.AddPlaylist(playlist_name, '')
+        playlist_entry = youtube_service.AddPlaylist(playlist_name, description)
         if isinstance(playlist_entry, gdata.youtube.YouTubePlaylistEntry):
             print 'Created Playlist "%s"' %  playlist_name
         else:
