@@ -209,6 +209,7 @@ def main():
 
         if id3.has_key('ARTIST') and id3.has_key('TITLE'):
             title = '%s - %s' % (id3['ARTIST'], id3['TITLE'])
+            title = title.decode('utf-8', 'ignore')  # drop bad UTF-8 characters
         else:
             title = os.path.basename(song_path).replace('.mp3', '')
 
