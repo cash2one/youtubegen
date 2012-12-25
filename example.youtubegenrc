@@ -1,0 +1,11 @@
+# This goes in your home directory.
+
+[Login]
+email: you@gmail.com
+pass: whatever
+developer_key: whatever
+
+[Settings]
+#keywords: punk, punk rock, 77, 82, england, washington, dc, band, hardcore, oi
+#always_playlist: yes
+#skip_description: yes
