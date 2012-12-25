@@ -290,7 +290,7 @@ def main():
 
         # Build the gdata.media.Group object
         kwargs = {}
-        if configs.keywords:
+        if config.keywords:
             kwargs['keywords'] = gdata.media.Keywords(text=args.keywords)
         kwargs['player'] = None
         kwargs['title'] = gdata.media.Title(text=title)
