@@ -44,6 +44,4 @@ To upload the whole album, run the program like this:
 
    $ youtubegen cover.jpg *.mp3
 
-You will be prompted for the necessary login information, developer key, and a description for
-the videos. To avoid being prompted each time, set the command line flags (described in the output
-of ``youtubgen --help``) or create a ~/.youtubegenrc (described in ``example.youtubegenrc'').
+You will be prompted for the necessary login information, developer key, and a description for the videos. To avoid being prompted each time, set the command line flags (described in the output of ``youtubgen --help``) or create a ~/.youtubegenrc (described in ``example.youtubegenrc'').
