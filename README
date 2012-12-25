@@ -50,7 +50,7 @@ Suppose you have an album like this:
 
 To upload the whole album, run the program like this:
 
-   $ youtubegen.py cover.jpg *.mp3
+   $ youtubegen cover.jpg *.mp3
 
 You will be prompted for the necessary login information, developer key, and a description for
 the videos. You can being prompted by specifying the using command line flags, or in your
