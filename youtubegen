@@ -78,17 +78,27 @@ def sort_key_fn(song_path):
     
 def main():
     parser = argparse.ArgumentParser(description=sys.modules[__name__].__doc__)
-    parser.add_argument('cover_file', metavar='CoverFile', type=file, help='Cover image file')
-    parser.add_argument('song_files', metavar='SongFile', type=file, nargs='+', help='List of song files')
-    parser.add_argument('--desc', dest='desc', metavar='Description', help='Youtube description for the videos')
-    parser.add_argument('--email', dest='email', metavar='Email', help='YouTube email login')
-    parser.add_argument('--pass', dest='pass_', metavar='Password', help='YouTube password')
-    parser.add_argument('--keywords', dest='keywords', metavar='Keywords', help='Additional search keywords (ex: "punk, hardcore")')
-    parser.add_argument('-k', '--developer_key', metavar='YoutubeDeveloperKey', help='YouTube developer key')
+
+    parser.add_argument('cover_file', metavar='CoverFile', type=file,
+                        help='Cover image file')
+    parser.add_argument('song_files', metavar='SongFile', type=file, nargs='+',
+                        help='List of song files')
+    
+    parser.add_argument('--email', dest='email', metavar='Email',
+                        help='YouTube email login')
+    parser.add_argument('--pass', dest='pass_', metavar='Password',
+                        help='YouTube password')
+    parser.add_argument('--dev-key', dest='developer_key', metavar='YoutubeDeveloperKey',
+                        help='YouTube developer key')
+    
+    parser.add_argument('--desc', dest='desc', metavar='Description',
+                        help='Youtube description for the videos')
+    parser.add_argument('--tags', dest='keywords', metavar='Tags',
+                        help='YouTube tags for the videos (ex: "punk, hardcore")')
     parser.add_argument('-P', '--playlist', dest='playlist', action='store_true',
                         help='Group all videos into a playlist')
     parser.add_argument('-L', '--low-quality', dest='low_quality', action='store_true',
-                        help='Render videos in low quality (faster & shorter upload, but scratchy image quality)')
+                        help='Render videos in low quality (faster & shorter upload, but scratchy quality)')    
     
     try:
         args = parser.parse_args()
