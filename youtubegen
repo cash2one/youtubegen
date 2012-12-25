@@ -169,7 +169,7 @@ def main():
                     ('playlist', ('Settings', 'always_playlist'))]
         
         for name, (section, option) in transfer:
-            if cfg.has_section(section) and cfg.has_option(section, option):
+            if (name not in config) and cfg.has_section(section) and cfg.has_option(section, option):
                 config[name] = cfg.get(section, option)
 
         # Special transfers
