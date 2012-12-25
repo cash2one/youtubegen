@@ -1,4 +1,8 @@
-# This goes in your home directory.
+# Copy this to ~/.youtubegenrc
+# 
+# If you put your password in this file, be sure to run:
+#   $ chmod 700 ~/.youtubegenrc
+# so other users on your system cannot read the file.
 
 [Login]
 email: you@gmail.com
