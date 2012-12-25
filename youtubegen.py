@@ -14,6 +14,7 @@ if sys.version_info[:2] < (2, 7) or sys.version_info[0] != 2:
 
 import argparse
 import commands
+import ConfigParser
 import getpass
 import os
 import shutil
@@ -48,6 +49,21 @@ if not commands.getoutput('which dvd-slideshow'):
     sys.exit(1)
 
 
+
+class Bunch(dict):
+    """A dictionary with dot access. Attribute access on missing key results
+    in None."""
+    def __setattr__(self, name, value):
+        self[name] = value
+        self.__dict__[name] = value
+
+    def __getattr__(self, name):
+        if name in self:
+            return self[name]
+        else:
+            return None
+
+
 def sort_key_fn(song_path):
     tags = ID3.ID3(song_path)
     
@@ -58,21 +74,22 @@ def sort_key_fn(song_path):
             return int(tags['TRACKNUMBER'])
         except:
             return -1
+
     
 def main():
     parser = argparse.ArgumentParser(description=sys.modules[__name__].__doc__)
-    parser.add_argument('developer_key', metavar='YoutubeDeveloperKey', help='YouTube developer key')
     parser.add_argument('cover_file', metavar='CoverFile', type=file, help='Cover image file')
-    parser.add_argument('song_files', metavar='SongFile', type=file, nargs='+', help='Song Files')
+    parser.add_argument('song_files', metavar='SongFile', type=file, nargs='+', help='List of song files')
     parser.add_argument('--desc', dest='desc', metavar='Description', help='Youtube description for the videos')
     parser.add_argument('--email', dest='email', metavar='Email', help='YouTube email login')
     parser.add_argument('--pass', dest='pass_', metavar='Password', help='YouTube password')
     parser.add_argument('--keywords', dest='keywords', metavar='Keywords', help='Additional search keywords (ex: "punk, hardcore")')
+    parser.add_argument('-k', '--developer_key', metavar='YoutubeDeveloperKey', help='YouTube developer key')
     parser.add_argument('-P', '--playlist', dest='playlist', action='store_true',
                         help='Group all videos into a playlist')
-    parser.add_argument('-X', '--high-quality', dest='high_quality', action='store_true',
-                        help='Render videos in higher quality (slower & longer upload, but better image quality)')
-
+    parser.add_argument('-L', '--low-quality', dest='low_quality', action='store_true',
+                        help='Render videos in low quality (faster & shorter upload, but scratchy image quality)')
+    
     try:
         args = parser.parse_args()
     except IOError as exc:
@@ -84,25 +101,84 @@ def main():
     if not args.cover_file.name.lower().endswith(('.jpg', '.png', '.gif')):
         print 'Image file does not exist, or is invalid'
         return
+    
+    # ------------------------------------------------------------------------------    
+    # Set up the configuration in a Bunch. Some options can only be set from the config
+    # file.
+    # 
+    # Resolve order is:
+    # 1. command line flags
+    # 2. config file
+    # 3. prompting the user    
+    # ------------------------------------------------------------------------------
+    config = Bunch()
+    
+    # Resolve from arguments
+    if args.email:
+        config.email = args.email
+    if args.pass_:
+        config.pass_ = args.pass_
+    if args.developer_key:
+        config.developer_key = args.developer_key
+    if args.desc:
+        config.desc = args.desc.replace('\\n', '\n')
+    if args.keywords:
+        config.keywords = args.keywords
+    if args.playlist:
+        config.playlist = args.playlist
+
+    # Resolve from config
+    config_path = os.path.expanduser("~/.youtubegenrc")
+    if os.path.exists(config_path):
+        cfg = ConfigParser.ConfigParser()
+        cfg.read(config_path)
+
+        # Direct transfers of config file variables to the bunch.
+        # Each item is follows: (NameInBunch, (ConfigSection, ConfigOption))
+        transfer = [('email', ('Login', 'email')),
+                    ('pass_', ('Login', 'pass')),
+                    ('developer_key', ('Login', 'developer_key')),
+                    ('keywords', ('Setttings', 'keywords')),
+                    ('playlist', ('Settings', 'always_playlist'))]
+        
+        for name, (section, option) in transfer:
+            if cfg.has_section(section) and cfg.has_option(section, option):
+                config[name] = cfg.get(section, option)
+
+        # Special transfers
+        if cfg.has_section('Settings') and cfg.has_option('Settings', 'skip_description'):
+            config.desc = '  '
+    
+    # Resolve from prompt
+    if not config.email:
+        config.email = raw_input('Email: ')
+
+    if not config.pass_:
+        config.pass_ = getpass.getpass('Password: ')
+
+    if not config.developer_key:
+        config.developer_key = raw_input('YouTube Developer Key: ')
+
+    if not config.desc:
+        print 'Enter description (enter two blank lines to break):'
+        config.desc = ''
+        
+        while True:
+            config.desc += raw_input() + '\n'
+            if config.desc.endswith('\n\n\n'):
+                break
+        
+        config.desc = config.desc.strip()
+
+    # -----------------------------------------------------------------------------
 
     # Login to Youtube.
     youtube_service = gdata.youtube.service.YouTubeService()
-    youtube_service.email = args.email if args.email else raw_input('Email: ')
-    youtube_service.password = args.pass_ if args.pass_ else getpass.getpass('Password: ')
+    youtube_service.email = config.email
+    youtube_service.password = config.pass_
+    youtube_service.developer_key = config.developer_key
     youtube_service.source = 'youtubegen'
-    youtube_service.developer_key = args.developer_key
     youtube_service.ProgrammaticLogin()
-
-    # Get description variable from command line, or prompt now.
-    if args.desc is None:
-        print 'Enter description (two blank lines to break):'
-        description = ''    
-        while True:
-            description += raw_input() + '\n'
-            if description.endswith('\n\n\n'):
-                break
-    else:
-        description = args.desc.replace('\\n', '\n')
     
     # Generate Temporary Directory
     tmp_dir = os.path.join(tempfile.gettempdir(), 'youtubegen-%d' % int(time.time()))
@@ -136,9 +212,9 @@ def main():
     print 
 
     # Generate a playlist for this album
-    if args.playlist:
+    if config.playlist:
         playlist_name = None
-
+        
         for song_path in sorted_songs:
             tags = ID3.ID3(song_path)
             if tags.get('ARTIST') and tags.get('ALBUM'):
@@ -148,7 +224,7 @@ def main():
         if playlist_name is None:
             playlist_name = raw_input('Playlist Title: ')
         
-        playlist_entry = youtube_service.AddPlaylist(playlist_name, description)
+        playlist_entry = youtube_service.AddPlaylist(playlist_name, config.description)
         if isinstance(playlist_entry, gdata.youtube.YouTubePlaylistEntry):
             print 'Created Playlist "%s"' %  playlist_name
         else:
@@ -183,16 +259,16 @@ def main():
         fh.write('%s:%d\n' % (cover_file_path, song_length))
         fh.close()
 
-        if args.high_quality:            
+        if args.low_quality:            
+            command = 'dvd-slideshow -flv %s' % recipe
+            video_fname = '%d.flv' % (num + 1)
+        else:
             # The -mp2 causes the audio to be encoded into MP3, as opposed to
             # the default AC3. We do this because a bug appeared in Ubuntu
             # where ffmpeg would pass invalid pointers to free() from the AC3
             # functions, crash everything, and prevent the video from being made.
             command = 'dvd-slideshow -mp2 %s' % recipe 
             video_fname = '%d.vob' % (num + 1)
-        else:
-            command = 'dvd-slideshow -flv %s' % recipe
-            video_fname = '%d.flv' % (num + 1)
             
         output = commands.getoutput(command)
 
@@ -215,11 +291,11 @@ def main():
 
         # Build the gdata.media.Group object
         kwargs = {}
-        if args.keywords is not None:
+        if configs.keywords:
             kwargs['keywords'] = gdata.media.Keywords(text=args.keywords)
         kwargs['player'] = None
         kwargs['title'] = gdata.media.Title(text=title)
-        kwargs['description'] = gdata.media.Description(description_type='plain', text=description)
+        kwargs['description'] = gdata.media.Description(description_type='plain', text=config.description)
         kwargs['category'] = [gdata.media.Category(text='Music',
                                                    scheme='http://gdata.youtube.com/schemas/2007/categories.cat',
                                                    label='Music')]
