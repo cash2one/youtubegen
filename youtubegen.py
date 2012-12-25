@@ -209,7 +209,6 @@ def main():
         sorted_songs.append(new_song_path)
 
     sorted_songs.sort(key=sort_key_fn)
-    print 
 
     # Generate a playlist for this album
     if config.playlist:
