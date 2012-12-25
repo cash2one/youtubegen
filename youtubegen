@@ -165,7 +165,8 @@ def main():
         transfer = [('email', ('Login', 'email')),
                     ('pass_', ('Login', 'pass')),
                     ('developer_key', ('Login', 'developer_key')),
-                    ('keywords', ('Setttings', 'keywords')),
+                    ('keywords', ('Settings', 'keywords')),
+                    ('lock_uploads', ('Settings', 'always_lock_uploads')),
                     ('playlist', ('Settings', 'always_playlist'))]
         
         for name, (section, option) in transfer:
