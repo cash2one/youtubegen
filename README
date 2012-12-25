@@ -22,9 +22,7 @@ License: GPL v2.0 <http://www.gnu.org/licenses/gpl-2.0.txt>
 
 YoutubeGen is a script for uploading an album to invidiual youtube videos. It does not matter what format the song audio files are in, and the visual portion of the video is made into the cover art.
 
-The videos will be named '%artist - %title' based on the ID3 tags of the MP3 file, but if they fail to exist, the filename will be used. The videos are uploaded in the reverse order specified by the track numbers in the ID3 tags, so when you go to the recent uploads on your video manager you can select them and add them to a playlist, and they will be added to the playlist in order.
-
-You can use the '-X' to create higher quality videos, but it is slower to generate the videos and they take longer to upload. Really, the only difference is the cover art is less pixelated.
+The videos will be named '%artist - %title' based on the ID3 tags of the MP3 file, but if they fail to exist, the filename will be used. If you specify -P (or always_playlist=yes in [Settings] under ~/.youtubegenrc), a playlist will be generated. The name of the playlist will be inferred from the first '%artist - %album' found, otherwise it will prompt you.
 
 ========== Requirements ===============
 
@@ -37,11 +35,6 @@ First, there are a number of package dependencies. Trying to run the script will
 The videos produced are automatically uploaded to your youtube account. In order to do this, you must first get a YouTube developer key (it's free). To do this, go to:
 
    http://code.google.com/apis/youtube/dashboard/gwt/index.html
-
-Make it a shell variable as follows:
-
-   $ echo 'export Y_DEV_KEY="<YOUR_KEY>"' >> ~/.bashrc
-   $ source ~/.bashrc
 
 ========== Uploading an Album ===============
 
@@ -57,7 +50,8 @@ Suppose you have an album like this:
 
 To upload the whole album, run the program like this:
 
-   $ youtubegen.py $Y_DEV_KEY cover.jpg *.mp3
+   $ youtubegen.py cover.jpg *.mp3
 
-If will prompt you for your login information, and the description to use for all the videos.
-
+You will be prompted for the necessary login information, developer key, and a description for
+the videos. You can being prompted by specifying the using command line flags, or in your
+~/.youtubegenrc. See ``example.youtubegenrc''.
