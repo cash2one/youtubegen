@@ -75,7 +75,19 @@ def sort_key_fn(song_path):
         except:
             return -1
 
+def get_video_title(song_path):
+    tags = ID3.ID3(song_path)
+
+    if tags.artist and tags.title:
+        title = '%s - %s' % (tags.artist, tags.title)
+    else:
+        title = os.path.basename(song_path).replace('.mp3', '')
+
+    title = title.decode('utf-8', 'ignore')  # drop bad UTF-8 characters
     
+    return title
+
+
 def main():
     parser = argparse.ArgumentParser(description=sys.modules[__name__].__doc__)
 
@@ -99,7 +111,9 @@ def main():
                         help='Group all videos into a playlist')
     parser.add_argument('-L', '--low-quality', dest='low_quality', action='store_true',
                         help='Render videos in low quality (faster & shorter upload, but scratchy quality)')    
-    
+    parser.add_argument('-X', dest='lock_uploads', action='store_true',
+                        help='Lock multiple processes from simultaneously uploading')
+
     try:
         args = parser.parse_args()
     except IOError as exc:
@@ -113,8 +127,8 @@ def main():
         return
     
     # ------------------------------------------------------------------------------    
-    # Set up the configuration in a Bunch. Some options can only be set from the config
-    # file.
+    # Set up the configuration in a Bunch. Some options can only be set from the
+    # config file.
     # 
     # Resolve order is:
     # 1. command line flags
@@ -123,7 +137,7 @@ def main():
     # ------------------------------------------------------------------------------
     config = Bunch()
     
-    # Resolve from arguments
+    # Resolve from arguments ------------------------------------------------------
     if args.email:
         config.email = args.email
     if args.pass_:
@@ -134,11 +148,14 @@ def main():
         config.desc = args.desc.replace('\\n', '\n')
     if args.keywords:
         config.keywords = args.keywords
+    if args.lock_uploads:
+        config.lock_uploads = args.lock_uploads
     if args.playlist:
         config.playlist = args.playlist
-
-    # Resolve from config
+    
+    # Resolve from config ------------------------------------------------------
     config_path = os.path.expanduser("~/.youtubegenrc")
+
     if os.path.exists(config_path):
         cfg = ConfigParser.ConfigParser()
         cfg.read(config_path)
@@ -159,7 +176,7 @@ def main():
         if cfg.has_section('Settings') and cfg.has_option('Settings', 'skip_description'):
             config.desc = '  '
     
-    # Resolve from prompt
+    # Resolve from prompt ------------------------------------------------------
     if not config.email:
         config.email = raw_input('Email: ')
 
@@ -180,7 +197,7 @@ def main():
         
         config.desc = config.desc.strip()
 
-    # -----------------------------------------------------------------------------
+    # ---------------------------------------------------------------------------
 
     # Login to Youtube.
     youtube_service = gdata.youtube.service.YouTubeService()
@@ -209,7 +226,7 @@ def main():
             new_song_path = os.path.join(tmp_dir, os.path.basename(song_path))
             shutil.copy(old_song_path, new_song_path)
         else:
-            print 'Converting', song_path, '...',
+            sys.stdout.write('Converting %s... ' % song_path)
             sys.stdout.flush()
             old_song_path = song_path
             new_song_path = os.path.join(tmp_dir, os.path.splitext(os.path.basename(song_path))[0] + '.mp3')
@@ -220,7 +237,7 @@ def main():
 
     sorted_songs.sort(key=sort_key_fn)
 
-    # Generate a playlist for this album
+    # Generate a playlist for this album --------------------------------------------------
     if config.playlist:
         playlist_name = None
         
@@ -245,20 +262,27 @@ def main():
     
     sys.stdout.flush()
     
-    # Generate videos for each song and upload the videos
+    # ------------------------------------------------------------------------------
+    # Main processing loop for songs
+    #
+    # In the body of this loop, the following actions in order:
+    # 1. Generate Video File
+    # 2. Upload to YouTube
+    # 3. Add to PlayList (if we made one)
+    # ------------------------------------------------------------------------------    
     cover_file_path = os.path.abspath(args.cover_file.name)
 
     orig_dir = os.getcwd()
     os.chdir(tmp_dir)
 
     for num, song_path in enumerate(sorted_songs):
-        print '[%d/%d]' % (num + 1, len(sorted_songs)),
+        sys.stdout.write('[%d/%d] ' % (num + 1, len(sorted_songs)))
         sys.stdout.flush()
-
-        # Write Recipe and Generate Video ---------------------------------------------
-        print 'Generating...',
+        
+        # Generate Video ---------------------------------------------
+        sys.stdout.write('Generating... ')
         sys.stdout.flush()
-
+        
         mad_file = mad.MadFile(song_path)
         song_length = mad_file.total_time() / 1000
  
@@ -278,42 +302,49 @@ def main():
             # functions, crash everything, and prevent the video from being made.
             command = 'dvd-slideshow -mp2 %s' % recipe 
             video_fname = '%d.vob' % (num + 1)
-            
+        
         output = commands.getoutput(command)
-
+        
         if not os.path.exists(video_fname):
-            print '(failed)'
-            print output
+            sys.stdout.write('(failed)\n\n')
+            sys.stdout.write(output)
+            sys.stdout.flush();
             continue
         
         # Upload To Youtube ---------------------------------------------------
-        print 'Uploading...',
+
+        # Build the metadata object (gdata.media.Group)        
+        media_group = gdata.media.Group(player=None,
+                                        title=gdata.media.Title(text=get_video_title(song_path)),
+                                        description=gdata.media.Description(description_type='plain', text=config.description),
+                                        category=[gdata.media.Category(text='Music', label='Music')],
+                                        keywords=(gdata.media.Keywords(text=config.keywords) if config.keywords else None))
+
+        # Upload the video, only in this comment section does locking have any effect.
+        video_entry = gdata.youtube.YouTubeVideoEntry(media=media_group)
+        lock_fname = os.path.join(tempfile.gettempdir(), 'youtubegen-upload-lock')
+
+        sys.stdout.write('Uploading')
         sys.stdout.flush()
-
-        id3 = ID3.ID3(song_path)
-
-        if id3.has_key('ARTIST') and id3.has_key('TITLE'):
-            title = '%s - %s' % (id3['ARTIST'], id3['TITLE'])
-        else:
-            title = os.path.basename(song_path).replace('.mp3', '')
-        title = title.decode('utf-8', 'ignore')  # drop bad UTF-8 characters
-
-        # Build the gdata.media.Group object
-        kwargs = {}
-        if config.keywords:
-            kwargs['keywords'] = gdata.media.Keywords(text=args.keywords)
-        kwargs['player'] = None
-        kwargs['title'] = gdata.media.Title(text=title)
-        kwargs['description'] = gdata.media.Description(description_type='plain', text=config.description)
-        kwargs['category'] = [gdata.media.Category(text='Music',
-                                                   scheme='http://gdata.youtube.com/schemas/2007/categories.cat',
-                                                   label='Music')]
-        media_group = gdata.media.Group(**kwargs)
-
-        # Upload the video
-        video_entry = gdata.youtube.YouTubeVideoEntry(media=media_group)        
-        video_entry = youtube_service.InsertVideoEntry(video_entry, video_fname)
         
+        try:
+            if config.lock_uploads:
+                while os.path.exists(lock_fname):
+                    time.sleep(.5)
+                assert not os.path.exists(lock_fname)
+                lock_file = open(lock_fname, 'w')
+                lock_file.write('1')
+                lock_file.close()
+
+            sys.stdout.write('... ')
+            sys.stdout.flush()
+
+            video_entry = youtube_service.InsertVideoEntry(video_entry, video_fname)
+        finally:
+            if config.lock_uploads:
+                os.remove(lock_fname)        
+        
+        # Add To Playlist, if we made one -------------------------
         if playlist_entry is not None:
             playlist_uri = playlist_entry.feed_link[0].href
             video_id = video_entry.id.text.split('/')[-1]
@@ -322,7 +353,7 @@ def main():
                 playlist_uri, video_id)
             
             if not isinstance(playlist_video_entry, gdata.youtube.YouTubePlaylistVideoEntry):
-                print '[Failed to add to playlist]', 
+                sys.stdout.write('[Failed to add to playlist] ')
         
         # Send Newline ------------------------------------------------
         print
