@@ -335,6 +335,7 @@ def main():
                 lock_file = open(lock_fname, 'w')
                 lock_file.write('1')
                 lock_file.close()
+                assert os.path.exists(lock_fname)
 
             sys.stdout.write('... ')
             sys.stdout.flush()
@@ -342,7 +343,7 @@ def main():
             video_entry = youtube_service.InsertVideoEntry(video_entry, video_fname)
         finally:
             if config.lock_uploads:
-                os.remove(lock_fname)        
+                os.remove(lock_fname)
         
         # Add To Playlist, if we made one -------------------------
         if playlist_entry is not None:
