@@ -1,18 +1,10 @@
-_|      _|                    _|_|_|_|_|            _|                  
-  _|  _|    _|_|    _|    _|      _|      _|    _|  _|_|_|      _|_|    
-    _|    _|    _|  _|    _|      _|      _|    _|  _|    _|  _|_|_|_|  
-    _|    _|    _|  _|    _|      _|      _|    _|  _|    _|  _|        
-    _|      _|_|      _|_|_|      _|        _|_|_|  _|_|_|      _|_|_|  
-                                                                        
-                                                                        
-                                                      
-  _|_|_|                                              
-_|          _|_|    _|_|_|        _|_|_|    _|    _|  
-_|  _|_|  _|_|_|_|  _|    _|      _|    _|  _|    _|  
-_|    _|  _|        _|    _|      _|    _|  _|    _|  
-  _|_|_|    _|_|_|  _|    _|  _|  _|_|_|      _|_|_|  
-                                  _|              _|  
-                                  _|          _|_|    
+__     __      _______    _           _____            
+\ \   / /     |__   __|  | |         / ____|           
+ \ \_/ /__  _   _| |_   _| |__   ___| |  __  ___ _ __  
+  \   / _ \| | | | | | | | '_ \ / _ \ | |_ |/ _ \ '_ \ 
+   | | (_) | |_| | | |_| | |_) |  __/ |__| |  __/ | | |
+   |_|\___/ \__,_|_|\__,_|_.__/ \___|\_____|\___|_| |_|
+                                                       
 
 Author:  Daniel da Silva <daniel@meltingwax.net>
 License: GPL v2.0 <http://www.gnu.org/licenses/gpl-2.0.txt>
@@ -28,11 +20,11 @@ The videos will be named '%artist - %title' based on the ID3 tags of the MP3 fil
 
 This script is made specifically for linux systems, and may work on macs, but not windows.
 
-First, there are a number of package dependencies. Trying to run the script will tell you what they are if they're missing, but if you are using ubuntu run:
+You must have Python, version [2.7, 3). There are a number of module dependencies. Trying to run the program and it will tell you what they are if they're missing, but if you are using ubuntu run:
 
    $ sudo apt-get install sox libsox-fmt-all dvd-slideshow python-pymad python-id3 python-gdata
 
-The videos produced are automatically uploaded to your youtube account. In order to do this, you must first get a YouTube developer key (it's free). To do this, go to:
+The videos produced are automatically uploaded to your youtube account. In order to do this, you must get a YouTube developer key (it's free). To do this, go to:
 
    http://code.google.com/apis/youtube/dashboard/gwt/index.html
 
@@ -53,5 +45,5 @@ To upload the whole album, run the program like this:
    $ youtubegen cover.jpg *.mp3
 
 You will be prompted for the necessary login information, developer key, and a description for
-the videos. You can being prompted by specifying the using command line flags, or in your
-~/.youtubegenrc. See ``example.youtubegenrc''.
+the videos. To avoid being prompted each time, set the command line flags (described in the output
+of ``youtubgen --help``) or create a ~/.youtubegenrc (described in ``example.youtubegenrc'').
