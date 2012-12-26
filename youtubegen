@@ -222,7 +222,7 @@ def main():
         if not os.path.exists(song_path):
             continue
 
-        if song_path.endswith('.mp3'):
+        if song_path.lower().endswith('.mp3'):
             old_song_path = song_path
             new_song_path = os.path.join(tmp_dir, os.path.basename(song_path))
             shutil.copy(old_song_path, new_song_path)
@@ -344,7 +344,10 @@ def main():
             video_entry = youtube_service.InsertVideoEntry(video_entry, video_fname)
         finally:
             if config.lock_uploads:
-                os.remove(lock_fname)
+                try:
+                    os.remove(lock_fname)
+                except:
+                    pass
         
         # Add To Playlist, if we made one -------------------------
         if playlist_entry is not None:
