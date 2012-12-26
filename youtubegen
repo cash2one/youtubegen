@@ -317,7 +317,7 @@ def main():
         # Build the metadata object (gdata.media.Group)        
         media_group = gdata.media.Group(player=None,
                                         title=gdata.media.Title(text=get_video_title(song_path)),
-                                        description=gdata.media.Description(description_type='plain', text=config.description),
+                                        description=gdata.media.Description(description_type='plain', text=config.desc),
                                         category=[gdata.media.Category(text='Music', label='Music')],
                                         keywords=(gdata.media.Keywords(text=config.keywords) if config.keywords else None))
 
