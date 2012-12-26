@@ -174,7 +174,7 @@ def main():
                 config[name] = cfg.get(section, option)
 
         # Special transfers
-        if cfg.has_section('Settings') and cfg.has_option('Settings', 'skip_description'):
+        if not config.desc and cfg.has_section('Settings') and cfg.has_option('Settings', 'skip_description'):
             config.desc = '  '
     
     # Resolve from prompt ------------------------------------------------------
@@ -251,7 +251,7 @@ def main():
         if playlist_name is None:
             playlist_name = raw_input('Playlist Title: ')
         
-        playlist_entry = youtube_service.AddPlaylist(playlist_name, config.description)
+        playlist_entry = youtube_service.AddPlaylist(playlist_name, config.desc)
         if isinstance(playlist_entry, gdata.youtube.YouTubePlaylistEntry):
             print 'Created Playlist "%s"' %  playlist_name
         else:
