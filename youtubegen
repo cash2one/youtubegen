@@ -1,10 +1,10 @@
 #!/usr/bin/python
 """
 Generates and uploads youtube music videos one album at a time with cover art.
-Up the punx. See README for help.
+Uses FFmpeg at the core. See README for help and options.
 """
 
-__author__ = 'Daniel da Silva <daniel@meltingwax.net>'
+__author__ = 'Daniel da Silva <var.mail.daniel@gmail.com>'
 
 import sys
 
@@ -17,10 +17,12 @@ import commands
 import ConfigParser
 import getpass
 import os
+import pipes
 import shutil
 import sys
 import tempfile
 import time
+
 
 try:
     import ID3
@@ -34,20 +36,13 @@ except ImportError:
     print 'Requires gdata module <https://developers.google.com/gdata/articles/python_client_lib>'
     sys.exit(1)
 
-try:
-    import mad
-except ImportError:
-    print 'Requires pymad <http://spacepants.org/src/pymad/>'
-    sys.exit(1)
-
 if not commands.getoutput('which sox'):
     print 'Requires sox <http://sox.sourceforge.net/>'
     sys.exit(1)
 
-if not commands.getoutput('which dvd-slideshow'):
-    print 'Requires dvd-slideshow <http://dvd-slideshow.sourceforge.net>'
+if not commands.getoutput('which ffmpeg'):
+    print 'Requires FFmpeg <http://www.ffmpeg.org>'
     sys.exit(1)
-
 
 
 class Bunch(dict):
@@ -109,8 +104,6 @@ def main():
                         help='YouTube tags for the videos (ex: "punk, hardcore")')
     parser.add_argument('-P', '--playlist', dest='playlist', action='store_true',
                         help='Group all videos into a playlist')
-    parser.add_argument('-L', '--low-quality', dest='low_quality', action='store_true',
-                        help='Render videos in low quality (faster & shorter upload, but scratchy quality)')    
     parser.add_argument('-X', dest='lock_uploads', action='store_true',
                         help='Lock multiple processes from simultaneously uploading')
 
@@ -284,26 +277,14 @@ def main():
         sys.stdout.write('Generating... ')
         sys.stdout.flush()
         
-        mad_file = mad.MadFile(song_path)
-        song_length = mad_file.total_time() / 1000
- 
-        recipe = os.path.join(tmp_dir, '%d.txt' % (num + 1))
-        fh = open(recipe, 'w')
-        fh.write('%s:1\n' % song_path)
-        fh.write('%s:%d\n' % (cover_file_path, song_length))
-        fh.close()
+        video_fname = '%d.mp4'
+        command = ('ffmpeg -f image2 -loop 1 -i {} -i {} '
+                   '-c:v libx264 -tune stillimage -c:a aac '
+                   '-strict experimental -b:a 192k -shortest '
+                   '{}').format(pipes.quote(cover_file_path),
+                                pipes.quote(song_path),
+                                pipes.quote(video_fname))
 
-        if args.low_quality:            
-            command = 'dvd-slideshow -flv %s' % recipe
-            video_fname = '%d.flv' % (num + 1)
-        else:
-            # The -mp2 causes the audio to be encoded into MP3, as opposed to
-            # the default AC3. We do this because a bug appeared in Ubuntu
-            # where ffmpeg would pass invalid pointers to free() from the AC3
-            # functions, crash everything, and prevent the video from being made.
-            command = 'dvd-slideshow -mp2 %s' % recipe 
-            video_fname = '%d.vob' % (num + 1)
-        
         output = commands.getoutput(command)
         
         if not os.path.exists(video_fname):
@@ -365,6 +346,7 @@ def main():
 
     print 'Temporary directory was', tmp_dir
     os.chdir(orig_dir)
+
 
 if __name__ == '__main__':
     main()
