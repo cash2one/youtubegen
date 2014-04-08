@@ -31,6 +31,12 @@ except ImportError:
     sys.exit(1)
 
 try:
+    import Image
+except ImportError:
+    print 'Requires PIL <http://www.pythonware.com/products/pil/>'
+    sys.exit(1)
+
+try:
     import gdata.youtube.service
 except ImportError:
     print 'Requires gdata module <https://developers.google.com/gdata/articles/python_client_lib>'
@@ -205,6 +211,22 @@ def main():
     tmp_dir = os.path.join(tempfile.gettempdir(), 'youtubegen-%d' % int(time.time()))
     os.mkdir(tmp_dir)
 
+    # Convert cover file to 800x800 JPEG. FFmpeg requires the image size to
+    # be Even x Even.
+    cover_file_path = os.path.abspath(args.cover_file.name)
+
+    im = Image.open(cover_file_path)
+
+    if im.mode != "RGB":
+        im = im.convert("RGB")
+
+    im = im.resize((800, 800), Image.ANTIALIAS)
+
+    cover_file_path = os.path.splitext(cover_file_path)[0]
+    cover_file_path += ".jpg"
+
+    im.save(cover_file_path, "JPEG")
+
     # Generate list of songs sorted by their track number. This requires first
     # converting all songs to mp3s to allow reading their track number ID3 tag.
     sorted_songs = []
@@ -264,8 +286,6 @@ def main():
     # 2. Upload to YouTube
     # 3. Add to PlayList (if we made one)
     # ------------------------------------------------------------------------------    
-    cover_file_path = os.path.abspath(args.cover_file.name)
-
     orig_dir = os.getcwd()
     os.chdir(tmp_dir)
 
@@ -277,7 +297,7 @@ def main():
         sys.stdout.write('Generating... ')
         sys.stdout.flush()
         
-        video_fname = '%d.mp4'
+        video_fname = '{}.mp4'.format(num)
         command = ('ffmpeg -f image2 -loop 1 -i {} -i {} '
                    '-c:v libx264 -tune stillimage -c:a aac '
                    '-strict experimental -b:a 192k -shortest '
@@ -288,10 +308,10 @@ def main():
         output = commands.getoutput(command)
         
         if not os.path.exists(video_fname):
-            sys.stdout.write('(failed)\n\n')
-            sys.stdout.write(output)
-            sys.stdout.flush();
-            continue
+           sys.stdout.write('(failed)\n\n')
+           sys.stdout.write(output)
+           sys.stdout.flush();
+           continue
         
         # Upload To Youtube ---------------------------------------------------
 
