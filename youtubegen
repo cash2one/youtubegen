@@ -9,6 +9,7 @@ Uses FFmpeg at the core. See README for help and options.
 #   directory. Do not affect the existing file.
 # - Use commands.getstatusoutput(cmd) in place of commands.getoutput()
 #   and check error code as an addition way to fail.
+# - Package as a standard python program (setup.py) and release on PIP
 
 __author__ = 'Daniel da Silva <var.mail.daniel@gmail.com>'
 
