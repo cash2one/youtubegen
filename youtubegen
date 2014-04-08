@@ -4,6 +4,12 @@ Generates and uploads youtube music videos one album at a time with cover art.
 Uses FFmpeg at the core. See README for help and options.
 """
 
+# TODO:
+# - When converting cover files, place the converted image the temporary
+#   directory. Do not affect the existing file.
+# - Use commands.getstatusoutput(cmd) in place of commands.getoutput()
+#   and check error code as an addition way to fail.
+
 __author__ = 'Daniel da Silva <var.mail.daniel@gmail.com>'
 
 import sys
@@ -213,6 +219,7 @@ def main():
 
     # Convert cover file to 800x800 JPEG. FFmpeg requires the image size to
     # be Even x Even.
+
     cover_file_path = os.path.abspath(args.cover_file.name)
 
     im = Image.open(cover_file_path)
