@@ -23,13 +23,13 @@ This script is made specifically for linux systems, and may work on macs, but no
    $ sudo apt-get install sox libsox-fmt-all python-id3 
    $ sudo pip install youtubegen
 
+If you are using Ubuntu, you must download FFmpeg from their site and install it over the Ubuntu version.
+
 ========= Developer Key ===========
 
 The videos produced are automatically uploaded to your youtube account. In order to do this, you must get a YouTube developer key (it's free). To do this, go to:
 
    http://code.google.com/apis/youtube/dashboard/gwt/index.html
-
-If you are using Ubuntu, you must download FFmpeg from the site and install it over the Ubuntu version.
 
 ========== Uploading an Album ===============
 
