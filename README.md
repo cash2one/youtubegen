@@ -2,8 +2,8 @@
 # YouTubeGen
 
 
-**Author**: Daniel da Silva
-**License**: GPL v2.0
+**Author**: Daniel da Silva  
+**License**: GPL v2.0  
 **Contact**: <var.mail.daniel@gmail.com>  
 
 ## Description
