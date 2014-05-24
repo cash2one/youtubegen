@@ -12,9 +12,10 @@ setup(name='youtubegen',
       url='https://github.com/ddasilva/youtubegen',
       packages=['youtubegen'],
       install_requires=['Pillow', 'gdata'],
-      entry_points="""
-      [console_scripts]
-      youtubegen = youtubegen:main
-      """,
+      entry_points={
+          'console_scripts': [
+              'youtubegen = youtubegen:main'
+          ]
+      },
 )
 
