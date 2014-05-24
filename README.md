@@ -3,7 +3,7 @@
 
 
 **Author**: Daniel da Silva <var.mail.daniel@gmail.com>  
-**License**: GPL v2.0 <http://www.gnu.org/licenses/gpl-2.0.txt>
+**License**: GPL v2.0
 
 
 ## Description
@@ -36,7 +36,7 @@ Suppose you have an album like this:
     02 - second song.mp3
     03 - third song.mp3
     04 - fourth song.mp3
-    05 - fifth sogn.mp3
+    05 - fifth song.mp3
     cover.jpg
 
 To upload the whole album, run the program like this:
