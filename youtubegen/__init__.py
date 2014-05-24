@@ -33,28 +33,23 @@ import time
 try:
     import ID3
 except ImportError:
-    print 'Requires ID3 module <http://id3-py.sourceforge.net/>'
-    sys.exit(1)
+    raise ImportError, 'Requires ID3 module <http://id3-py.sourceforge.net/>'
 
 try:
     import Image
 except ImportError:
-    print 'Requires PIL <http://www.pythonware.com/products/pil/>'
-    sys.exit(1)
+    raise ImportError, 'Requires PIL <http://www.pythonware.com/products/pil/>'
 
 try:
     import gdata.youtube.service
 except ImportError:
-    print 'Requires gdata module <https://developers.google.com/gdata/articles/python_client_lib>'
-    sys.exit(1)
+    raise ImportError, 'Requires gdata module <https://developers.google.com/gdata/articles/python_client_lib>'
 
 if not commands.getoutput('which sox'):
-    print 'Requires sox <http://sox.sourceforge.net/>'
-    sys.exit(1)
+    raise ImportError, 'Requires sox <http://sox.sourceforge.net/>'
 
 if not commands.getoutput('which ffmpeg'):
-    print 'Requires FFmpeg <http://www.ffmpeg.org>'
-    sys.exit(1)
+    raise ImportError, 'Requires FFmpeg <http://www.ffmpeg.org>'
 
 
 class Bunch(dict):
