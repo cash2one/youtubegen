@@ -3,7 +3,7 @@
 from setuptools import setup
 
 setup(name='youtubegen',
-      version='0.9.1',
+      version='0.9.2',
       description='Generate and upload YouTube music videos',
       license='GPL',
       keywords='youtube music video',
