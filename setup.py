@@ -11,7 +11,7 @@ setup(name='youtubegen',
       author_email='var.mail.daniel@gmail.com',
       url='https://github.com/ddasilva/youtubegen',
       packages=['youtubegen'],
-      install_requires=['PIL', 'gdata'],
+      install_requires=['Pillow', 'gdata'],
       entry_points="""
       [console_scripts]
       youtubegen = youtubegen:main

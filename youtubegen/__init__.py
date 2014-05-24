@@ -38,7 +38,7 @@ except ImportError:
 try:
     import Image
 except ImportError:
-    raise ImportError, 'Requires PIL <http://www.pythonware.com/products/pil/>'
+    raise ImportError, 'Requires Pillow <https://pypi.python.org/pypi/Pillow/>'
 
 try:
     import gdata.youtube.service
