@@ -16,8 +16,8 @@ The videos will be named '%artist - %title' based on the ID3 tags of the MP3 fil
 
 This script is made specifically for linux systems, and may work on macs, but not windows.
 
-   $ sudo apt-get install sox libsox-fmt-all python-id3 
-   $ sudo pip install youtubegen
+    $ sudo apt-get install sox libsox-fmt-all python-id3 
+    $ sudo pip install youtubegen
 
 If you are using Ubuntu, you must download FFmpeg from their site and install it over the Ubuntu version.
 
