@@ -7,7 +7,6 @@ YouTubeGen
 
 
 # Description
------------
 
 YoutubeGen is a script for uploading an album to invidiual youtube videos. It does not matter what format the song audio files are in, and the visual portion of the video is made into the cover art.
 
