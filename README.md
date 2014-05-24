@@ -34,16 +34,16 @@ Uploading an Album
 
 Suppose you have an album like this:
 
-   $ ls
-   01 - army song.mp3       06 - voice of youth.mp3  11 - banner of hope.mp3      
-   02 - juvenile.mp3        07 - burn 'em down.mp3   12 - law of the jungle.mp3   
-   03 - so slow.mp3         08 - urban rebel.mp3     13 - the prisoner.mp3
-   04 - vicious circle.mp3  09 - jailhouse rock.mp3  14 - christianne.mp3
-   05 - attack.mp3          10 - sonic omen.mp3      15 - black leather girl.mp3
-   cover.jpg
+    $ ls
+    01 - first song.mp3
+    02 - second song.mp3
+    03 - third song.mp3
+    04 - fourth song.mp3
+    05 - fifth sogn.mp3
+    cover.jpg
 
 To upload the whole album, run the program like this:
 
-   $ youtubegen cover.jpg *.mp3
+    $ youtubegen cover.jpg *.mp3
 
 You will be prompted for the necessary login information, developer key, and a description for the videos. To avoid being prompted each time, set the command line flags (described in the output of ``youtubgen --help``) or create a ~/.youtubegenrc (described in ``example.youtubegenrc'').
