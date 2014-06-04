@@ -19,7 +19,7 @@ This script is made specifically for linux systems, and may work on macs, but no
     $ sudo apt-get install sox libsox-fmt-all python-id3 
     $ sudo pip install youtubegen
 
-If you are using Ubuntu, you must download FFmpeg from their site and install it over the Ubuntu version.
+If you are using Ubuntu, you must download FFmpeg [from its official site](http://www.ffmpeg.org) and install it over the Ubuntu version.
 
 ### Developer Key
 
